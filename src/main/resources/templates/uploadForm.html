@@ -1,0 +1,62 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
+        <script src="http://malsup.github.com/jquery.form.js"></script>
+        <script src="js/dropzone.js"></script>
+        <link rel="stylesheet" href="css/dropzone.css" />
+        <link rel="stylesheet" href="css/bootstrap.min.css" />
+
+<link rel="stylesheet" href="css/bootstrap-theme.min.css" />
+
+<script src="js/bootstrap.min.js" ></script>
+       
+        <script type="text/javascript">
+        Dropzone.options.myAwesomeDropzone = {
+        		  maxFilesize: 912, // MB
+        		
+        		};
+        
+        </script>
+        
+        <style>
+.file {
+	height: 300px;
+}
+</style>
+        
+</head>
+<body>
+
+	<div th:if="${message}">
+		<h2 th:text="${message}"/>
+	</div>
+
+	<div>
+<!-- 		<form method="POST" enctype="multipart/form-data" action="/">
+			<table>
+				<tr><td>File to upload:</td><td><input type="file" name="file" /></td></tr>
+				<tr><td></td><td><input type="submit" value="Upload" /></td></tr>
+			</table>
+		</form> -->
+		
+		<!-- Change /upload-target to your upload address -->
+<form id="myAwesomeDropzone" method="POST" action="/" class="dropzone dz-clickable"><div class="dz-default dz-message"><span>Drop files here to upload</span></div>
+	<input type="file" multiple="multiple" class="dz-hidden-input" style="visibility: hidden; position: absolute; top: 0px; left: 0px; height: 0px; width: 0px;" />
+
+</form>
+
+
+	</div>
+
+
+
+	<div>
+		<ul>
+			<li th:each="file : ${files}">
+				<a th:href="${file}" th:text="${#strings.listSplit(file, '/')[#lists.size(#strings.listSplit(file, '/'))-1]}" />
+			</li>
+		</ul>
+	</div>
+
+</body>
+</html>
