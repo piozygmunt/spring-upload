@@ -1,4 +1,4 @@
-package hello.storage;
+package uploadfiles.exceptions;
 
 public class StorageException extends RuntimeException {
 

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login</title>
+    <script
+            src="http://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+    <script src="js/bootstrap.min.js" ></script>
+
+    <link rel="stylesheet" href="css/bootstrap.css" />
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css" />
+
+</head>
+<div th:replace="fragments/header :: header"></div>
+
+
+<div class="container">
+    <div th:if="${#authorization.expression('!isAuthenticated()')}" id="loginbox" style="margin-top:50px;" class="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+        <div class="panel panel-info" >
+            <div class="panel-heading">
+                <div class="panel-title">Sign In</div>
+            </div>
+
+            <div style="padding-top:30px" class="panel-body" >
+
+                <p th:if="${param.logout}" class="alert alert-info">You have been logged out</p>
+                <p th:if="${param.error}" class="alert alert-danger">There was an error, please try again</p>
+
+                <form id="loginform" class="form-horizontal" role="form" name="form" th:action="@{/login}"  method="POST">
+
+                    <div style="margin-bottom: 25px" class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                        <input id="login-username" type="text" class="form-control" name="username" value="" placeholder="username or email"/>
+                    </div>
+
+                    <div style="margin-bottom: 25px" class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                        <input id="login-password" type="password" class="form-control" name="password" placeholder="password"/>
+                    </div>
+                    <input type="hidden"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}"/>
+
+
+
+
+                    <div style="margin-top:10px" class="form-group">
+                        <!-- Button -->
+
+                        <div class="col-sm-12 controls">
+                            <input id="btn-login" class="btn btn-success" type="submit" value="Login"/>
+                        </div>
+                    </div>
+
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${#authorization.expression('isAuthenticated()')}" id="logininfo" style="margin-top:50px;" class="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+        <div class="panel panel-info" >
+            <div class="panel-heading">
+                <div class="panel-title">Login information</div>
+            </div>
+
+            <div style="padding-top:30px" class="panel-body" >
+                <span th:text="|You are already login as: |"></span>
+                <span style="font-weight: bold" th:text="${#authentication.name}"></span>
+                <button class="btn btn-default" th:href="@{#}" onclick="$('#logout-form').submit();">
+                    <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>&nbsp;Logout
+                </button>
+                <form style="visibility: hidden" id="logout-form" method="post" action="#" th:action="@{/logout}"></form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+<div th:replace="fragments/footer :: footer"></div>
+</html>

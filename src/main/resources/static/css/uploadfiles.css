@@ -1,0 +1,49 @@
+.file {
+    height: 300px;
+}
+.files-list{
+    list-style: none;
+    padding:0px;
+}
+.files-list li{
+    display:block;
+    border: 1px black solid;
+    margin: 7px 0;
+}
+
+
+#dirform {
+    padding-top:15px;
+}
+.files-list li a.file-link{
+    padding:10px 5px;
+    text-decoration: none;
+    display:block;
+    color: midnightblue;
+    -webkit-transition: color 2s; /* Safari 3.1 to 6.0 */
+    transition: color 2s;
+    -webkit-transition: background-color 2s; /* Safari 3.1 to 6.0 */
+    transition: background-color 2s;
+    margin-right:55px;
+}
+
+.files-list li a.file-link:hover {
+    color: white;
+    background-color: #2b669a;
+}
+
+.info-msg {
+    font-size:18px;
+    font-weight: bold;
+}
+
+.dropzone {
+    min-height:100px;
+}
+
+.rel-button {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    right: 0px;
+}

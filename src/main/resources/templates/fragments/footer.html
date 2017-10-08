@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--/*  Multiple fragments may be defined in one file */-->
+<div th:fragment="footer" th:align="center" style="margin-top:20px">
+    &copy; <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}">2017</span>
+    <span th:text="#{footer.main-message}" />
+</div>
+</body>
+</html>

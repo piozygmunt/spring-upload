@@ -1,4 +1,6 @@
-package hello.storage;
+package uploadfiles.exceptions;
+
+import uploadfiles.exceptions.StorageException;
 
 public class StorageFileNotFoundException extends StorageException {
 

@@ -1,4 +1,4 @@
-package hello.storage;
+package uploadfiles;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
