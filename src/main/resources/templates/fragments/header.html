@@ -30,6 +30,11 @@
                         <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span>&nbsp;Sign in
                     </a>
                 </li>
+                <li>
+                    <a th:href="@{/registration}">
+                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;Sign up
+                    </a>
+                </li>
                 <li th:if="${#authorization.expression('isAuthenticated()')}">
                     <a href="/logout" th:href="@{#}" onclick="$('#logout-form').submit();">
                         <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>&nbsp;Logout
