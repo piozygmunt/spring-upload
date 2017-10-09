@@ -27,5 +27,4 @@ public interface StorageService {
 
     void createNewFolder(String path, String name);
 
-    void deleteFolder(String name);
 }

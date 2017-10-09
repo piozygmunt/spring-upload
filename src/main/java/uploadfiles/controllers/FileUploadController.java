@@ -43,6 +43,40 @@ public class FileUploadController {
     private final Logger logger = Logger.getLogger(FileUploadController.class);
     private final StorageService storageService;
 
+
+
+    static public String extractFilePath(String pattern, String uri)
+    {
+        return new AntPathMatcher()
+                .extractPathWithinPattern( pattern, uri );
+    }
+
+    static public String decodeFilePath(String filePath)
+    {
+        String decoded = null;
+        try {
+            decoded = URLDecoder.decode(filePath, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return decoded;
+    }
+
+    static public String encodeFilePath(String filePath)
+    {
+        String encoded = null;
+        try {
+            filePath = filePath.replaceAll("%(?![0-9a-fA-F]{2})", "%25");
+            filePath = filePath.replaceAll("\\+", "%2B");
+            encoded = URLDecoder.decode(filePath, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return encoded;
+    }
+
     @Autowired
     public FileUploadController(StorageService storageService) {
         this.storageService = storageService;
@@ -51,24 +85,17 @@ public class FileUploadController {
     @GetMapping("**")
     public String listUploadedFiles(Model model, HttpServletRequest request) throws IOException {
 
-        String filePath = new AntPathMatcher()
-                .extractPathWithinPattern( "/uploadfiles/**", request.getRequestURI() );
-
-        logger.info("info: " + filePath);
-
-        String decoded = null;
-        try {
-            decoded = URLDecoder.decode(filePath, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
+        String filePath = extractFilePath("/uploadfiles/**", request.getRequestURI());
+        String decoded = decodeFilePath(filePath);
 
         Map<Path, Boolean> paths =  storageService.loadAll(decoded);
         List<FileInfoDTO> links = new LinkedList<>();
 
+        String baseUrl =
+                MvcUriComponentsBuilder.fromController(FileUploadController.class).build().toString();
+
         for (Map.Entry<Path, Boolean> entry : paths.entrySet()) {
-            String fullPath = entry.getKey().toString();
+           /* String fullPath = entry.getKey().toString();
             String filename = fullPath.split("/")[fullPath.split("/").length-1];
             String removeURL = MvcUriComponentsBuilder.fromController(FileUploadController.class).build().toString() + "/files/" +
                     URLEncoder.encode(entry.getKey().toString(), "UTF-8").replace("%2F", "/");
@@ -85,16 +112,16 @@ public class FileUploadController {
           else
           {
               downloadURL = new String(removeURL);
-          }
+          }*/
 
-           links.add(new FileInfoDTO(downloadURL, removeURL, fullPath, filename));
+           links.add(new FileInfoDTO(baseUrl,null,entry.getKey().toString(), entry.getValue()));
 
         }
 
         model.addAttribute("files", links);
         model.addAttribute("currentPath", decoded);
         model.addAttribute("currentPathEncoded", filePath);
-        model.addAttribute("parentDir",MvcUriComponentsBuilder.fromController(FileUploadController.class).build().toString() + "/" + storageService.getParentDir(filePath));
+        model.addAttribute("parentDir",baseUrl + "/" + storageService.getParentDir(filePath));
 
         return "uploadForm";
     }
@@ -103,15 +130,8 @@ public class FileUploadController {
     @ResponseBody
     public ResponseEntity<Resource> serveFile(HttpServletRequest request) {
 
-        String filePath = new AntPathMatcher()
-                .extractPathWithinPattern( "/uploadfiles/files/**", request.getRequestURI() );
-
-        String decoded = null;
-        try {
-            decoded = URLDecoder.decode(filePath, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        String filePath = extractFilePath("/uploadfiles/files/**", request.getRequestURI());
+        String decoded = decodeFilePath(filePath);
 
         logger.info("files downloading");
         Resource file = storageService.loadAsResource(decoded);
@@ -121,59 +141,39 @@ public class FileUploadController {
 
     @DeleteMapping(value="files/**", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public ResponseEntity<ResponseUploadDTO> deleteFile(HttpServletRequest request) {
+    public ResponseEntity<ResponseUploadDTO> deleteFile(String currentPath, HttpServletRequest request) {
 
-        String filePath = new AntPathMatcher()
-                .extractPathWithinPattern( "/uploadfiles/files/**", request.getRequestURI() );
+        String filePath = extractFilePath("/uploadfiles/files/**", request.getRequestURI());
+        String decoded = decodeFilePath(filePath);
 
-        String decoded = null;
-        try {
-            decoded = URLDecoder.decode(filePath, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
 
-        String filename = decoded.split("/")[decoded.split("/").length-1];
-
-        logger.info("deleting file "+ decoded);
-
+        String baseUrl =
+                MvcUriComponentsBuilder.fromController(FileUploadController.class).build().toString();
         try {
             storageService.deleteFile(decoded);
         }
         catch(StorageException ex)
         {
-                    logger.info("deleting file2 "+ filePath);
-
             return new ResponseEntity<ResponseUploadDTO>(new ResponseUploadDTO(ex.getMessage(), null), HttpStatus.BAD_REQUEST);
         }
-                logger.info("deleting file3 "+ filePath);
 
+        //String downloadURL = baseUrl + "/files/" + filePath;
 
-        String downloadURL = MvcUriComponentsBuilder.fromController(FileUploadController.class).build().toString() + "/files/" + filePath;
+        FileInfoDTO fileInfoDTO = new FileInfoDTO(baseUrl, null, decoded, false);
 
-        FileInfoDTO fileInfoDTO = new FileInfoDTO(downloadURL, downloadURL, filePath, filename);
-
-        return new ResponseEntity<ResponseUploadDTO>(new ResponseUploadDTO("You successfully deleted file " + filename + "!", fileInfoDTO), HttpStatus.OK);
+        return new ResponseEntity<ResponseUploadDTO>(new ResponseUploadDTO("You successfully deleted file " + fileInfoDTO.getFilename() + "!", fileInfoDTO), HttpStatus.OK);
     }
 
     @PostMapping("**")
     @ResponseBody
     public ResponseEntity<ResponseUploadDTO> handleFileUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
 
-        String filePath = new AntPathMatcher()
-                        .extractPathWithinPattern( "/uploadfiles/**", request.getRequestURI() );
+        String filePath = extractFilePath("/uploadfiles/files/**", request.getRequestURI());
+        String decoded = decodeFilePath(filePath);
 
+        String baseUrl =
+                MvcUriComponentsBuilder.fromController(FileUploadController.class).build().toString();
 
-        logger.info("uploading: " + filePath);
-
-        String decoded = null;
-        try {
-            decoded = URLDecoder.decode(filePath, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        logger.info("uploading file. filePath: " + decoded + ", filename: " + file.getOriginalFilename());
         try {
             storageService.store(file, decoded);
         }
@@ -181,13 +181,15 @@ public class FileUploadController {
         {
             return new ResponseEntity<ResponseUploadDTO>(new ResponseUploadDTO(ex.getMessage(), null), HttpStatus.BAD_REQUEST);
         }
-
+/*
         String downloadURL =  MvcUriComponentsBuilder.fromController(FileUploadController.class).build().toString() + "/files/" + filePath
                 + "/" + file.getOriginalFilename();
 
         String fullPath = filePath + "/" + file.getOriginalFilename();
 
-        FileInfoDTO fileInfoDTO = new FileInfoDTO(downloadURL, downloadURL, fullPath, file.getOriginalFilename());
+        FileInfoDTO fileInfoDTO = new FileInfoDTO(downloadURL, downloadURL, fullPath, file.getOriginalFilename());*/
+
+        FileInfoDTO fileInfoDTO = new FileInfoDTO(baseUrl, file.getOriginalFilename(), decoded, false);
 
         return new ResponseEntity<ResponseUploadDTO>(new ResponseUploadDTO("You successfully uploaded " + file.getOriginalFilename() + "!", fileInfoDTO), HttpStatus.OK);
     }
@@ -196,15 +198,12 @@ public class FileUploadController {
     @ResponseBody
     public ResponseEntity<ResponseUploadDTO> createNewDirectory(@RequestBody  DirectoryDTO directoryDTO, HttpServletRequest request) {
 
-        String filePath = new AntPathMatcher()
-                .extractPathWithinPattern( "/uploadfiles/directory/**", request.getRequestURI() );
+        String filePath = extractFilePath("/uploadfiles/directory/**", request.getRequestURI());
+        String decoded = decodeFilePath(filePath);
 
-        String decoded = null;
-        try {
-            decoded = URLDecoder.decode(filePath, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        String baseUrl =
+                MvcUriComponentsBuilder.fromController(FileUploadController.class).build().toString();
+
 
         try {
             storageService.createNewFolder(decoded, directoryDTO.getDirname());
@@ -214,22 +213,18 @@ public class FileUploadController {
             return new ResponseEntity<>(new ResponseUploadDTO( ex.getMessage(), null), HttpStatus.BAD_REQUEST);
         }
 
-        String fullPath = filePath + "/" + directoryDTO.getDirname();
+       /* String fullPath = filePath + "/" + directoryDTO.getDirname();
 
-        String encoded = null;
-        try {
-            encoded = URLEncoder.encode(directoryDTO.getDirname(), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        String encoded = encodeFilePath(directoryDTO.getDirname());
 
         String downloadURL =  MvcUriComponentsBuilder.fromController(FileUploadController.class).build().toString() + "/" + filePath
                 + "/" + encoded;
 
         String removeURL =  MvcUriComponentsBuilder.fromController(FileUploadController.class).build().toString() + "/directory/" + filePath
-                + "/" + encoded;
+                + "/" + encoded;*/
 
-        FileInfoDTO fileInfoDTO = new FileInfoDTO(downloadURL, removeURL, fullPath, directoryDTO.getDirname());
+//        FileInfoDTO fileInfoDTO = new FileInfoDTO(downloadURL, removeURL, fullPath, directoryDTO.getDirname());
+        FileInfoDTO fileInfoDTO = new FileInfoDTO(baseUrl, directoryDTO.getDirname(), decoded, true);
 
         return new ResponseEntity<>(new ResponseUploadDTO("You successfully createad " + directoryDTO.getDirname() + "!", fileInfoDTO), HttpStatus.OK);
     }

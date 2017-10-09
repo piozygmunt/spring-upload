@@ -42,7 +42,6 @@ public class FileSystemStorageService implements StorageService {
     @Override
     public void store(MultipartFile file, String path) {
         Path relativePath = this.rootLocation.resolve(Paths.get(path));
-        logger.info("realtive path: " + relativePath.toString());
         String filename = StringUtils.cleanPath(file.getOriginalFilename());
         try {
             if (file.isEmpty()) {
@@ -60,8 +59,6 @@ public class FileSystemStorageService implements StorageService {
                         "Cannot store file with relative path outside current directory "
                                 + filename);
             }
-            logger.info("info: " + relativePath.resolve(filename).toString());
-
             Files.copy(file.getInputStream(), relativePath.resolve(filename),
                     StandardCopyOption.REPLACE_EXISTING);
         }
@@ -73,7 +70,6 @@ public class FileSystemStorageService implements StorageService {
     @Override
     public Map<Path, Boolean> loadAll(String filePath) {
         Path relativePath = this.rootLocation.resolve(Paths.get(filePath));
-
         try {
 
             Map<Path, Boolean> map = Files.walk(relativePath, 1)
@@ -115,7 +111,6 @@ public class FileSystemStorageService implements StorageService {
     @Override
     public String getParentDir(String current) {
         Path currentPath = Paths.get(current);
-        logger.info("" + currentPath + " " + current);
         if(this.rootLocation.resolve(currentPath).equals(this.rootLocation))
             return currentPath.toString();
         Path parentPath = currentPath.getParent();
@@ -124,14 +119,11 @@ public class FileSystemStorageService implements StorageService {
 
     @Override
     public void deleteFile(String filepath) {
-        logger.info("filepath: " + filepath);
         Path path = load(filepath);
         File file = path.toFile();
-        if(file.exists() && file.canWrite()) {
-            logger.info("path: " + path.toString());
+        if(!path.equals(rootLocation) && file.exists() && file.canWrite()) {
             if(file.isDirectory()) FileSystemUtils.deleteRecursively(file);
-            logger.info("result " +  file.delete());
-
+            else file.delete();
         }
         else throw new StorageFileNotFoundException(
                 "Could not read file: " + filepath);
@@ -144,9 +136,6 @@ public class FileSystemStorageService implements StorageService {
 
     @Override
     public void createNewFolder(String path, String dirname) {
-
-        logger.info("path : " + path + ", dirname: " + dirname);
-
         Path dirPath = rootLocation.resolve(path);
         Path fullDirPath = dirPath.resolve(dirname);
         File directory = fullDirPath.toFile();
@@ -159,16 +148,6 @@ public class FileSystemStorageService implements StorageService {
         {
             throw new StorageException("Could not create directory with name " + dirname);
         }
-    }
-
-    @Override
-    public void deleteFolder(String dirname) {
-        String mainDirPath = rootLocation.toString();
-        File directory = new File(mainDirPath + "/"+ dirname);
-        if(directory.exists() && directory.canWrite())
-            directory.delete();
-        else throw new StorageFileNotFoundException(
-                "Could not read file: " + dirname);
     }
 
     @Override
