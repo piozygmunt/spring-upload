@@ -4,6 +4,7 @@ import lombok.Data;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.mapping.FetchProfile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import uploadfiles.forms.UserEditForm;
 import uploadfiles.forms.UserForm;
 
 import javax.persistence.*;
@@ -36,6 +37,16 @@ public class User {
         username = form.getUsername();
         password = form.getPassword();
         email = form.getEmail();
+    }
+
+    public User(UserEditForm userEditForm)
+    {
+        id = userEditForm.getId();
+        username = userEditForm.getUsername();
+        password = userEditForm.getUsername();
+        email = userEditForm.getEmail();
+        enabled = userEditForm.isEnabled();
+        roles = userEditForm.getRoles();
     }
 
     @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.EAGER)

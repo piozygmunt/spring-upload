@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Upload files</title>
+    <script
+            src="http://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+    <script th:src="@{/js/bootstrap.min.js}" ></script>
+    <script th:src="@{/js/dropzone.js}"></script>
+    <script th:src="@{/js/myfunction.js}"></script>
+
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}" />
+    <link rel="stylesheet" th:href="@{/css/bootstrap-theme.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/dropzone.css}" />
+    <link rel="stylesheet" th:href="@{/css/uploadfiles.css}" />
+
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <!-- default header name is X-CSRF-TOKEN -->
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+    <div class="row">
+        <div class="alert alert-info text-center info-msg" role="alert">
+            <span> Users list</span>
+        </div>
+    </div>
+    <div class="row">
+                        <div class="col-md-12">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th th:text="|Username|"/>
+                                    <th th:text="|Email|" />
+                                    <th th:text="|Enabled|"/>
+                                    <th th:text="|Roles|" />
+                                    <th th:text="|Edit|" />
+                                    <th th:text="|Remove|" />
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="user : ${users}">
+                                    <td th:text="${user.username}" />
+                                    <td th:text="${user.email}" />
+                                    <td th:text="${user.enabled}" />
+                                    <td>
+                                        <div class="dropdown">
+                                            <button  class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                                                Role <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li th:each="role : ${user.roles}">
+                                                    <a href="#" th:text="${role.name}"></a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td>
+                                     <a class="btn btn-success" th:href="@{'users/' + ${user.id}}" th:text="|Edit|"></a>
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-danger" th:href="@{'users/remove/' + ${user.id}}" th:text="|Remove|"></a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+        </div>
+    </div>
+
+
+    </div>
+<div th:replace="fragments/footer :: footer"></div>
+
+</body>
+</html>

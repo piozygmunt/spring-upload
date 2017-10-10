@@ -8,7 +8,7 @@ import org.springframework.validation.Validator;
 import uploadfiles.services.UserService;
 
 @Component
-public class UserValidator implements Validator {
+public class UserRegisterValidator implements Validator {
 
     @Autowired
     private UserService userService;
@@ -22,6 +22,18 @@ public class UserValidator implements Validator {
     public void validate(Object o, Errors errors) {
         UserForm userForm = (UserForm) o;
 
+        validateCustom(o, errors);
+
+        if (userService.findByUsername(userForm.getUsername()) != null) {
+            errors.rejectValue("username", "Duplicate.userForm.username");
+        }
+
+
+    }
+
+    protected void validateCustom(Object o, Errors errors){
+        UserForm userForm = (UserForm) o;
+
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "username", "NotEmpty", "Username can't be empty.");
         if (userForm.getUsername().length() < 3 || userForm.getUsername().length() > 10) {
             errors.rejectValue("username", "Size.userForm.username");
@@ -31,16 +43,10 @@ public class UserValidator implements Validator {
             errors.rejectValue("password", "Size.userForm.password");
         }
 
-        if (userService.findByUsername(userForm.getUsername()) != null) {
-            errors.rejectValue("username", "Duplicate.userForm.username");
-        }
-
-
         if (!userForm.doPasswordMatch()) {
             errors.rejectValue("passwordConfirm", "Diff.userForm.passwordConfirm");
         }
 
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "email", "NotEmpty", "Emails can't be empty.");
-
     }
 }

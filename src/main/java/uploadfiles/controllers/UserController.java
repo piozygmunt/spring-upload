@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import uploadfiles.entities.User;
 import uploadfiles.forms.UserForm;
-import uploadfiles.forms.UserValidator;
+import uploadfiles.forms.UserRegisterValidator;
 import uploadfiles.services.UserService;
 
 import javax.validation.Valid;
@@ -22,7 +22,7 @@ public class UserController {
 
 
     @Autowired
-    private UserValidator userValidator;
+    private UserRegisterValidator userRegisterValidator;
     @Autowired
     private UserService userService;
 
@@ -36,7 +36,7 @@ public class UserController {
 
     @PostMapping(value = "/registration")
     public String registration(@Valid @ModelAttribute("userForm") UserForm userForm, BindingResult bindingResult) {
-        userValidator.validate(userForm, bindingResult);
+        userRegisterValidator.validate(userForm, bindingResult);
 
         if (bindingResult.hasErrors()) {
             return "registration";

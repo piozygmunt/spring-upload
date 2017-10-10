@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Upload files</title>
+    <script
+            src="http://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+    <script th:src="@{/js/bootstrap.min.js}" ></script>
+    <script th:src="@{/js/dropzone.js}"></script>
+    <script th:src="@{/js/myfunction.js}"></script>
+    <script th:src="@{/js/bootstrap-multiselect.js}"></script>
+
+    <link rel="stylesheet" th:href="@{/css/bootstrap.css}" />
+    <link rel="stylesheet" th:href="@{/css/bootstrap-theme.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/dropzone.css}" />
+    <link rel="stylesheet" th:href="@{/css/uploadfiles.css}" />
+    <link rel="stylesheet" th:href="@{/css/bootstrap-multiselect.css}" />
+
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet"/>
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <!-- default header name is X-CSRF-TOKEN -->
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <style>
+        .input-grp-wrapper {
+            margin-bottom:20px;
+        }
+    </style>
+    <script type="text/javascript">
+            $(document).ready(function() {
+                $('#user-edit-form-multiselect').multiselect();
+            });
+    </script>
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container">
+    <div class="row" th:object="${userEditForm}">
+            <div class="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 panel panel-info" >
+                <div class="panel-heading">
+                    <div class="panel-title" th:text="|Edit user (id=${id})|">Edit user</div>
+                </div>
+
+                <div style="padding-top:30px" class="panel-body" >
+                    <form action="#" class="form-horizontal" role="form" name="form" th:action="@{'/admin/users/' + ${id}}" method="post">
+
+
+                    <div class="input-grp-wrapper">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                    <input id="login-username" th:field="*{username}" type="text" class="form-control" name="username" value="" placeholder="username"/>
+                </div>
+                <label th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="errorText text-danger"/>
+            </div>
+
+
+            <div class="input-grp-wrapper">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                    <input id="login-password" th:field="*{password}" type="password" class="form-control" name="password" placeholder="password"/>
+                </div>
+                <label th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="errorText text-danger"/>
+            </div>
+
+                        <div class="input-grp-wrapper">
+                            <div class="input-group">
+                                <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                                <input id="login-password" th:field="*{passwordConfirm}" type="password" class="form-control" name="passwordConfirm" placeholder="password"/>
+                            </div>
+                            <label th:if="${#fields.hasErrors('passwordConfirm')}" th:errors="*{passwordConfirm}" class="errorText text-danger"/>
+                        </div>
+
+
+            <div class="input-grp-wrapper">
+
+                <div  class="input-group">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-envelope"></i></span>
+                    <input id="login-password" th:field="*{email}" type="email" class="form-control" name="email" placeholder="email"/>
+                </div>
+                <label th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="errorText text-danger"/>
+            </div>
+
+                        <div class="input-grp-wrapper">
+
+                            <div  class="input-group">
+                        <select id="user-edit-form-multiselect" th:field="*{roles}" class="form-control" multiple="multiple">
+                            <option th:each="r : ${allRoles}"
+                                    th:value="${r.id}"
+                                    th:text="${r.name}"
+                                    th:selected="${userEditForm.roles.contains(r)}">
+                            </option>
+                        </select>
+                            </div>
+                            <label th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="errorText text-danger"/>
+                        </div>
+
+                        <div class="input-grp-wrapper">
+
+                            <div  class="input-group">
+                                <input th:field="*{enabled}" type="checkbox" data-toggle="toggle" data-on="Enabled" data-off="Disabled"/>
+                            </div>
+                            <label th:if="${#fields.hasErrors('enabled')}" th:errors="*{enabled}" class="errorText text-danger"/>
+                        </div>
+
+                    <div class="form-group">
+                        <!-- Button -->
+
+                        <div class="col-sm-12 controls">
+                            <input id="btn-login" class="btn btn-success" type="submit" value="Update"/>
+                            <a th:href="@{/admin/users}" id="btn-cancel" class="btn btn-default" type="submit" th:text="|Cancel|"/>
+                        </div>
+                    </div>
+                    </form>
+        </div>
+    </div>
+    </div>
+
+
+</div>
+<div th:replace="fragments/footer :: footer"></div>
+
+</body>
+</html>
