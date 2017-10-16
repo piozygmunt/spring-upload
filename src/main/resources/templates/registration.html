@@ -86,6 +86,23 @@
         </div>
     </div>
 
+    <div th:if="${#authorization.expression('isAuthenticated()')}" id="logininfo" style="margin-top:50px;" class="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
+        <div class="panel panel-info" >
+            <div class="panel-heading">
+                <div class="panel-title">Login information</div>
+            </div>
+
+            <div style="padding-top:30px" class="panel-body" >
+                <span th:text="|You are already login as: |"></span>
+                <span style="font-weight: bold" th:text="${#authentication.name}"></span>
+                <button class="btn btn-default" th:href="@{#}" onclick="$('#logout-form').submit();">
+                    <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>&nbsp;Logout
+                </button>
+                <form style="visibility: hidden" id="logout-form" method="post" action="#" th:action="@{/logout}"></form>
+            </div>
+        </div>
+    </div>
+
 
 
 </div>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
 <body>
 <nav class="navbar navbar-inverse" th:fragment="header">
     <div class="container">
@@ -14,7 +15,7 @@
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
                 <li >
-                    <a href="#" th:href="@{/uploadfiles}">Upload files</a>
+                    <a href="#" th:href="@{/uploadfiles}"> Upload files</a>
                 </li>
                 <li >
                     <a href="#" th:href="@{/}">Tasks</a>

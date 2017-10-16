@@ -13,13 +13,18 @@ import uploadfiles.forms.UserEditValidator;
 import uploadfiles.services.RoleService;
 import uploadfiles.services.UserService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.security.Principal;
 import java.util.HashSet;
+import java.util.logging.Logger;
 
 
 @Controller
 @RequestMapping("/admin")
+@SessionAttributes({"allRoles"})
 public class AdministratorController {
+    private static final Logger logger = Logger.getLogger(AdministratorController.class.toString());
     @Autowired
     private UserService userService;
     @Autowired
@@ -28,35 +33,41 @@ public class AdministratorController {
     private UserEditValidator userEditValidator;
 
     @GetMapping("users")
-    public String listUsers(Model model)
+    public String listUsers(Model model, Principal principal, HttpServletRequest request)
     {
         Iterable<User> users = userService.findAll();
         model.addAttribute("users" ,  users);
+        logger.info("principal: " + principal);
+        logger.info("request: " + request.getUserPrincipal());
+
         return "admin/users";
     }
 
+    @ModelAttribute("allRoles")
+    public Iterable<Role> getAllRoles()
+    {
+        logger.info("getting roles");
+        return roleService.findAll();
+    }
+
     @GetMapping("users/{id}")
-    public String editUser(@PathVariable long id,  Model model, HttpSession session)
+    public String editUser(@PathVariable long id,  Model model)
     {
         User user = userService.findByID(id);
-        Iterable<Role> roles= roleService.findAll();
         UserEditForm userEditForm = new UserEditForm(user);
         model.addAttribute("userEditForm", userEditForm);
-        model.addAttribute("allRoles", roles);
-        session.setAttribute("allRoles", roles);
         return "admin/userEdit";
     }
 
     @PostMapping("users/{id}")
     public String updateUser(@PathVariable long id, @ModelAttribute UserEditForm userEditForm,
-                             BindingResult bindingResult, @SessionAttribute("allRoles") Iterable<Role> roles,
-                             Model model, SessionStatus sessionStatus)
+                             BindingResult bindingResult, @ModelAttribute("allRoles") Iterable<Role> roles,
+                             SessionStatus sessionStatus)
     {
         userEditValidator.validate(userEditForm, bindingResult);
 
 
         if (bindingResult.hasErrors()) {
-            model.addAttribute("allRoles", roles);
             return "admin/userEdit";
         }
 
